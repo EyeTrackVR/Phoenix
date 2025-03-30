@@ -1,0 +1,12 @@
+[package]
+name = "Phoenix"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+members = [
+    "crates/logger",
+]
+
+[workspace.dependencies]
+log = { version = "0.4.27", default-features = false }

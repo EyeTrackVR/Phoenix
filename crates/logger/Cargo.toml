@@ -1,0 +1,13 @@
+[package]
+name = "logger"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+panic-handler = []
+default = ["panic-handler"]
+no-color = ["colored/no-color"]
+
+[dependencies]
+log = { workspace = true }
+colored = { version = "3.0.0" }
