@@ -1,0 +1,9 @@
+[package]
+name = "camera"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+log = { workspace = true }
+opencv = { version = "0.94.4" }
+serialport = { version = "4.7.1" }
