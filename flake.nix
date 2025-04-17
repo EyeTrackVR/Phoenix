@@ -13,6 +13,9 @@
         buildInputs = with pkgs; [
           rustup mold curl
 
+          # Serialport
+          pkg-config udev
+
           # OpenCV
           (opencv.override { enableGtk2 = true; })
           pkg-config llvm clang libclang stdenv.cc.cc.lib
@@ -21,9 +24,9 @@
           pkg-config dbus
           librsvg libsoup_3
           gobject-introspection
-          at-spi2-atk atkmm harfbuzz
-          cairo openssl pango webkitgtk_4_1
+          at-spi2-atk atkmm harfbuzz udev
           gtk3 glib gdk-pixbuf glib-networking
+          cairo openssl.dev pango webkitgtk_4_1
         ];
 
         shellHook = ''
