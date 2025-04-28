@@ -1,9 +1,23 @@
 [package]
 name = "camera"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 log = { workspace = true }
-opencv = { version = "0.94.4" }
-serialport = { version = "4.7.1" }
+opencv = { workspace = true }
+
+nom = "8.0.0"
+replace_with = "0.1.7"
+serialport = "4.7.1"
+
+
+[package.metadata.vcpkg]
+git = "https://github.com/microsoft/vcpkg"
+rev = "6760f636e7bcd0dd034c5c0906f6174009465c29"
+dependencies = ["opencv4[contrib,nonfree]"]
+
+[package.metadata.vcpkg.target]
+x86_64-pc-windows-msvc = { triplet = "x64-windows-static-md", install = [
+    "opencv4[contrib,nonfree]",
+] }
