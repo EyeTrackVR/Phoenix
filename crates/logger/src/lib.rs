@@ -1,6 +1,6 @@
-use std::sync::{Mutex, OnceLock};
 use colored::{ColoredString, Colorize};
 use log::{Level, Log, Metadata, Record, SetLoggerError};
+use std::sync::{Mutex, OnceLock};
 
 pub struct Logger {
     pub log_level: Mutex<Level>,
@@ -48,9 +48,14 @@ impl Log for Logger {
     }
 
     fn log(&self, record: &Record) {
-        if self.enabled(record.metadata())  {
+        if self.enabled(record.metadata()) {
             #[cfg(not(target_family = "wasm"))]
-            eprintln!("{}: {} - {}", self.colorize(record.level()), record.target(), record.args());
+            eprintln!(
+                "{}: {} - {}",
+                self.colorize(record.level()),
+                record.target(),
+                record.args()
+            );
         }
     }
 
@@ -66,26 +71,49 @@ pub fn init() -> Result<(), SetLoggerError> {
 
     #[cfg(feature = "panic-handler")]
     std::panic::set_hook(Box::new(move |info| {
-        let location = info.location().map_or("Unknown location".to_string(), |p| format!("{}:{}:{}", p.file(), p.line(), p.column()));
-        let payload = info.payload().downcast_ref::<String>().map(|s| s.clone()).unwrap_or_else(|| {
-            info.payload().downcast_ref::<&str>().unwrap_or(&"Unknown Payload").to_string()
+        let location = info.location().map_or("Unknown location".to_string(), |p| {
+            format!("{}:{}:{}", p.file(), p.line(), p.column())
         });
+        let payload = info
+            .payload()
+            .downcast_ref::<String>()
+            .map(|s| s.clone())
+            .unwrap_or_else(|| {
+                info.payload()
+                    .downcast_ref::<&str>()
+                    .unwrap_or(&"Unknown Payload")
+                    .to_string()
+            });
         // This treats newlines as a pseudo "stack trace" for the panic
-        let payload = payload.lines().enumerate()
+        let payload = payload
+            .lines()
+            .enumerate()
             .map(|(i, line)| match (i, line.trim().is_empty()) {
                 (_, true) => String::new(),
                 (0, _) => format!("{}", line),
                 _ => format!("\t\t||  {}", line),
             })
             .filter(|line| !line.is_empty())
-        .collect::<Vec<_>>().join("\n");
+            .collect::<Vec<_>>()
+            .join("\n");
 
         let trace = match std::env::var("RUST_BACKTRACE") {
             Ok(_) => std::backtrace::Backtrace::force_capture().to_string(),
-            Err(_) => "  Run with RUST_BACKTRACE=1 environment variable to display backtrace".to_string(),
+            Err(_) => {
+                "  Run with RUST_BACKTRACE=1 environment variable to display backtrace".to_string()
+            }
         };
-        let trace = trace.lines().map(|line| format!("\t\t|{}", line)).collect::<Vec<_>>().join("\n");
-        log::error!("Panic occurred at: {}\n\t\t-----------------> {}\n{}", location.black(), payload.bright_red(), trace);
+        let trace = trace
+            .lines()
+            .map(|line| format!("\t\t|{}", line))
+            .collect::<Vec<_>>()
+            .join("\n");
+        log::error!(
+            "Panic occurred at: {}\n\t\t-----------------> {}\n{}",
+            location.black(),
+            payload.bright_red(),
+            trace
+        );
     }));
 
     return log::set_logger(logger).map(|()| log::set_max_level(log::LevelFilter::Trace));
@@ -96,7 +124,13 @@ pub fn set_level(level: Level) {
 }
 
 pub fn set_crate_log(target: &str, level: Level) {
-    LOGGER.get().unwrap().crate_levels.lock().unwrap().push((target.to_string(), level));
+    LOGGER
+        .get()
+        .unwrap()
+        .crate_levels
+        .lock()
+        .unwrap()
+        .push((target.to_string(), level));
 }
 
 pub fn get_raw_logger() -> &'static Logger {

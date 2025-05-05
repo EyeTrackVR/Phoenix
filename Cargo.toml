@@ -1,16 +1,10 @@
-[package]
-name = "Phoenix"
-version = "0.1.0"
-edition = "2021"
-
 [workspace.dependencies]
 log = { version = "0.4.27", default-features = false }
+opencv = { version = "0.94.4" }
 
 [workspace]
+resolver = "3"
 members = [
     "crates/logger",
     "crates/camera",
 ]
-
-[dependencies]
-opencv = { version = "0.94.3", features = ["highgui"] }
